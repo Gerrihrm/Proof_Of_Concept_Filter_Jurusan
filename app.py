@@ -326,7 +326,7 @@ elif st.session_state.step == 5:
     
     st.markdown("### 1. Evaluasi Posisi Pilihan Utama")
     if not target_info.empty:
-        row = target_info.iloc
+        row = target_info.iloc[0]
         
         col_m1, col_m2, col_m3 = st.columns(3)
         col_m1.metric("Posisi Target", target_career)
