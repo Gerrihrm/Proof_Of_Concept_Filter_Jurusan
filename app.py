@@ -335,7 +335,7 @@ elif st.session_state.step == 5:
         
      if "NOT ELIGIBLE" in row['Status Kelolosan']:
         st.error(f"⚠️ **KEPUTUSAN: {row['Status Kelolosan']}** — Profil Anda saat ini belum memenuhi batas ambang minimum untuk posisi **{target_career}**.")
-     else:
+    else:
         st.success(f"🎉 **KEPUTUSAN: {row['Status Kelolosan']}** — Profil Anda memenuhi standar kualifikasi industri untuk posisi **{target_career}**.")
 
     
