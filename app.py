@@ -265,12 +265,12 @@ elif st.session_state.step == 5:
     
     df_input = pd.DataFrame([raw_data])
     
-    # Ordinal Encoding
+    # A. Ordinal Encoding
     for col, mapping in ordinal_mappings.items():
         if col in df_input.columns:
             df_input[col] = df_input[col].map(mapping)
             
-    # One-Hot Encoding
+    # B. One-Hot Encoding
     nominal_cols = ['Gender', 'Major', 'GitHub_Profile', 'LinkedIn_Profile', 'Leadership_Experience']
     nominal_cols_present = [c for c in nominal_cols if c in df_input.columns]
     if nominal_cols_present:
@@ -278,34 +278,34 @@ elif st.session_state.step == 5:
     else:
         df_input_encoded = df_input.copy()
         
-    # Scaling Numerik
-    num_cols_present = [c for c in numeric_cols if c in df_input_encoded.columns]
-    if scaler is not None and num_cols_present:
-        df_input_encoded[num_cols_present] = scaler.transform(df_input_encoded[num_cols_present])
+    # C. Scaling Fitur Numerik dengan Penyelarasan Kolom (.reindex)
+    if scaler is not None:
+        if hasattr(scaler, 'feature_names_in_'):
+            scaler_cols = list(scaler.feature_names_in_)
+        else:
+            scaler_cols = numeric_cols
+            
+        df_num = df_input_encoded.reindex(columns=scaler_cols, fill_value=0)
+        scaled_values = scaler.transform(df_num)
+        for i, col in enumerate(scaler_cols):
+            df_input_encoded[col] = scaled_values[:, i]
         
     # 2. EVALUASI KE SELURUH SUB-MODEL KARIR
     results = []
     for career, comp in models_local_fs.items():
         rf_model = comp['model']
-        features_needed = comp['features']
         threshold = comp['optimal_threshold']
         
-        # Ambil urutan fitur resmi langsung dari atribut model (feature_names_in_)
+        # Ambil daftar & urutan resmi fitur yang dibutuhkan model
         if hasattr(rf_model, 'feature_names_in_'):
-            expected_features = list(rf_model.feature_names_in_)
+            cols_needed = list(rf_model.feature_names_in_)
+        elif 'features' in comp:
+            cols_needed = list(comp['features'])
         else:
-            expected_features = list(features_needed)
+            cols_needed = list(df_input_encoded.columns)
             
-        # Penyelarasan Fitur
-        df_selected = pd.DataFrame()
-        for f in expected_features:
-            if f in df_input_encoded.columns:
-                df_selected[f] = df_input_encoded[f]
-            else:
-                df_selected[f] = 0
-                
-        # PASTI-KAN URUTAN KOLOM 100% SAMA PERSIS DENGAN MODEL
-        df_selected = df_selected[expected_features]
+        # SOLUSI UTAMA: .reindex() menjamin urutan & nama kolom 100% pas
+        df_selected = df_input_encoded.reindex(columns=cols_needed, fill_value=0)
         
         # Prediksi Probabilitas
         prob_placed = float(rf_model.predict_proba(df_selected))
@@ -318,7 +318,6 @@ elif st.session_state.step == 5:
             'Status Kelolosan': 'ELIGIBLE (Lolos)' if is_eligible else 'NOT ELIGIBLE',
             'Prob_Raw': prob_placed
         })
-
         
     df_all = pd.DataFrame(results).sort_values(by='Prob_Raw', ascending=False).reset_index(drop=True)
     
@@ -328,7 +327,6 @@ elif st.session_state.step == 5:
     st.markdown("### 1. Evaluasi Posisi Pilihan Utama")
     if not target_info.empty:
         row = target_info.iloc
-        status_color = "green" if "ELIGIBLE" in row['Status Kelolosan'] else "red"
         
         col_m1, col_m2, col_m3 = st.columns(3)
         col_m1.metric("Posisi Target", target_career)
@@ -346,7 +344,6 @@ elif st.session_state.step == 5:
     st.markdown("### 2. Peringkat Rekomendasi Lintas Seluruh Bidang Karir")
     st.write("Berikut adalah hasil perbandingan potensi kesiapan kerja Anda di seluruh rumpun bidang karir:")
     
-    # Tampilkan Tabel
     st.dataframe(
         df_all.drop(columns=['Prob_Raw']),
         use_container_width=True,
@@ -357,3 +354,4 @@ elif st.session_state.step == 5:
     if st.button("🔄 Ulangi Asesmen / Tes Profil Baru", type="primary"):
         st.session_state.step = 1
         st.rerun()
+
