@@ -290,14 +290,23 @@ elif st.session_state.step == 5:
         features_needed = comp['features']
         threshold = comp['optimal_threshold']
         
+        # Ambil urutan fitur resmi langsung dari atribut model (feature_names_in_)
+        if hasattr(rf_model, 'feature_names_in_'):
+            expected_features = list(rf_model.feature_names_in_)
+        else:
+            expected_features = list(features_needed)
+            
         # Penyelarasan Fitur
         df_selected = pd.DataFrame()
-        for f in features_needed:
+        for f in expected_features:
             if f in df_input_encoded.columns:
                 df_selected[f] = df_input_encoded[f]
             else:
                 df_selected[f] = 0
                 
+        # PASTI-KAN URUTAN KOLOM 100% SAMA PERSIS DENGAN MODEL
+        df_selected = df_selected[expected_features]
+        
         # Prediksi Probabilitas
         prob_placed = float(rf_model.predict_proba(df_selected))
         is_eligible = prob_placed >= threshold
@@ -309,6 +318,7 @@ elif st.session_state.step == 5:
             'Status Kelolosan': 'ELIGIBLE (Lolos)' if is_eligible else 'NOT ELIGIBLE',
             'Prob_Raw': prob_placed
         })
+
         
     df_all = pd.DataFrame(results).sort_values(by='Prob_Raw', ascending=False).reset_index(drop=True)
     
