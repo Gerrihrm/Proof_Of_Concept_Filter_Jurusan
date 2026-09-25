@@ -178,7 +178,7 @@ elif st.session_state.step == 2:
         st.session_state.form_data['Academic_Performance'] = st.selectbox("Performansi Akademik", perf_options, index=default_perf_idx)
 
     st.write("")
-    col_back, col_next = st.columns()
+    col_back, col_next = st.columns(2)
     with col_back:
         if st.button("⬅️ Kembali"):
             st.session_state.step = 1
@@ -208,7 +208,7 @@ elif st.session_state.step == 3:
         st.session_state.form_data['English_Proficiency'] = st.selectbox("Kemampuan Bahasa Inggris", eng_options, index=default_eng_idx)
 
     st.write("")
-    col_back, col_next = st.columns()
+    col_back, col_next = st.columns(2)
     with col_back:
         if st.button("⬅️ Kembali"):
             st.session_state.step = 2
@@ -241,7 +241,7 @@ elif st.session_state.step == 4:
         st.session_state.form_data['Target_Career'] = st.selectbox("🎯 Pilih Target Posisi Impian Utama Anda", career_options)
 
     st.write("")
-    col_back, col_next = st.columns()
+    col_back, col_next = st.columns(2)
     with col_back:
         if st.button("⬅️ Kembali"):
             st.session_state.step = 3
