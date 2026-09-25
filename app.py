@@ -333,10 +333,11 @@ elif st.session_state.step == 5:
         col_m2.metric("Probabilitas Keberhasilan", row['Probabilitas Placed'])
         col_m3.metric("Threshold Minimum (F0.5)", row['Threshold (F0.5)'])
         
-        if "ELIGIBLE" in row['Status Kelolosan']:
-            st.success(f"🎉 **KEPUTUSAN: {row['Status Kelolosan']}** — Profil Anda memenuhi standar kualifikasi industri untuk posisi **{target_career}**.")
-        else:
-            st.error(f"⚠️ **KEPUTUSAN: {row['Status Kelolosan']}** — Profil Anda saat ini belum memenuhi batas ambang minimum untuk posisi **{target_career}**.")
+     if "NOT ELIGIBLE" in row['Status Kelolosan']:
+        st.error(f"⚠️ **KEPUTUSAN: {row['Status Kelolosan']}** — Profil Anda saat ini belum memenuhi batas ambang minimum untuk posisi **{target_career}**.")
+     else:
+        st.success(f"🎉 **KEPUTUSAN: {row['Status Kelolosan']}** — Profil Anda memenuhi standar kualifikasi industri untuk posisi **{target_career}**.")
+
     
     st.divider()
     
