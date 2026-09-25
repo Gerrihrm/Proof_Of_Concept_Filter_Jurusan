@@ -308,7 +308,7 @@ elif st.session_state.step == 5:
         df_selected = df_input_encoded.reindex(columns=cols_needed, fill_value=0)
         
         # Prediksi Probabilitas
-        prob_placed = float(rf_model.predict_proba(df_selected))
+        prob_placed = float(rf_model.predict_proba(df_selected)[0, 1])
         is_eligible = prob_placed >= threshold
         
         results.append({
